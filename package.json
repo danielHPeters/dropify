@@ -17,19 +17,20 @@
     "jquery": "*"
   },
   "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-header": "^1.7.1",
-    "gulp-load-plugins": "^1.2.0",
-    "gulp-minify-css": "1.2.4",
-    "gulp-plumber": "^1.0.1",
-    "gulp-sass": "^3.1.0",
-    "gulp-uglify": "^2.1.0",
-    "gulp-util": "^3.0.7",
-    "gulp-umd": "^0.2.0",
+    "@types/jquery": "^3.3.10",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.0.0",
+    "gulp-clean-css": "^3.10.0",
+    "gulp-header": "^2.0.5",
+    "gulp-if": "^2.0.2",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-plumber": "^1.2.0",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.1",
+    "gulp-uglify": "^3.0.1",
+    "gulp-umd": "^2.0.0",
+    "gulp-util": "^3.0.8",
     "gulp-wrap-js": "^0.4.1",
-    "gulp-rename": "^1.2.2",
-    "minimist": "^1.2.0",
-    "gulp-if": "^2.0.0"
+    "minimist": "^1.2.0"
   }
 }

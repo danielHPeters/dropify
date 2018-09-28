@@ -1,82 +1,89 @@
-var gulp = require('gulp'),
-    $    = require('gulp-load-plugins')(),
-    meta = require('./package.json');
+'use strict'
 
-var argv = require('minimist')(process.argv.slice(2));
+const gulp = require('gulp')
+const $ = require('gulp-load-plugins')()
+const meta = require('./package.json')
 
-var jsDir     = 'src/js/',
-    sassDir   = 'src/sass/',
-    fontsDir  = 'src/fonts/',
-    distDir   = 'dist',
-    banner    = [
-        '/*!',
-        ' * =============================================================',
-        ' * <%= name %> v<%= version %> - <%= description %>',
-        ' * <%= homepage %>',
-        ' *',
-        ' * (c) 2017 - <%= author %>',
-        ' * =============================================================',
-        ' */\n\n'
-    ].join('\n'),
-    umdDeps = {
-        dependencies: function() {
-            return [
-                {
-                    name: '$',
-                    amd: 'jquery',
-                    cjs: 'jquery',
-                    global: 'jQuery',
-                    param: '$'
-                }
-            ];
-        }
-    };
+const argv = require('minimist')(process.argv.slice(2))
 
-var onError = function (err) {
-    $.util.beep();
-    console.log(err.toString());
-    this.emit('end');
-};
+const jsDir = 'src/js/'
+const sassDir = 'src/sass/'
+const fontsDir = 'src/fonts/'
+const distDir = 'dist'
+const banner = [
+  '/*!',
+  ' * =============================================================',
+  ' * <%= name %> v<%= version %> - <%= description %>',
+  ' * <%= homepage %>',
+  ' *',
+  ' * (c) 2017 - <%= author %>',
+  ' * =============================================================',
+  ' */\n\n'
+].join('\n')
+const umdDeps = {
+  dependencies: () => {
+    return [
+      {
+        name: '$',
+        amd: 'jquery',
+        cjs: 'jquery',
+        global: 'jQuery',
+        param: '$'
+      }
+    ]
+  }
+}
 
-gulp.task('fonts', function() {
-    return gulp.src(fontsDir + '**/*')
-        .pipe(gulp.dest(distDir + "/fonts"));
-});
+const onError = function (err) {
+  $.util.beep()
+  console.log(err.toString())
+  this.emit('end')
+}
 
-gulp.task('sass', function() {
-    return gulp.src(sassDir + '*.scss')
-        .pipe($.plumber({ errorHandler: onError }))
-        .pipe($.sass())
-        .pipe($.autoprefixer())
+gulp.task('copy:fonts', () => {
+  return gulp.src(fontsDir + '**/*')
+    .pipe(gulp.dest(distDir + '/fonts'))
+})
 
-        .pipe($.header(banner, meta))
-        .pipe(gulp.dest(distDir + "/css"))
+gulp.task('build:sass', () => {
+  return gulp.src(sassDir + '*.sass')
+    .pipe($.plumber({ errorHandler: onError }))
+    .pipe($.sass({indentedSyntax: true}))
+    .pipe($.autoprefixer())
 
-        .pipe($.if(!argv.dev, $.minifyCss()))
-        .pipe($.if(!argv.dev, $.rename(meta.name + '.min.css')))
-        .pipe($.if(!argv.dev, gulp.dest(distDir + "/css")));
-});
+    .pipe($.header(banner, meta))
+    .pipe(gulp.dest(distDir + '/css'))
 
-gulp.task('scripts', function() {
-    return gulp.src([jsDir + '*.js'])
-        .pipe($.plumber({ errorHandler: onError }))
-        .pipe(gulp.dest(distDir + "/js"))
-        .pipe($.umd(umdDeps))
+    .pipe($.if(!argv.dev, $.cleanCss()))
+    .pipe($.if(!argv.dev, $.rename(meta.name + '.min.css')))
+    .pipe($.if(!argv.dev, gulp.dest(distDir + '/css')))
+})
 
-        .pipe($.header(banner, meta))
-        .pipe($.rename(meta.name + '.js'))
-        .pipe(gulp.dest(distDir + "/js"))
+gulp.task('build:js', () => {
+  return gulp.src([jsDir + '*.js'])
+    .pipe($.plumber({ errorHandler: onError }))
+    .pipe(gulp.dest(distDir + '/js'))
+    .pipe($.umd(umdDeps))
 
-        .pipe($.if(!argv.dev, $.uglify()))
-        .pipe($.if(!argv.dev, $.header(banner, meta)))
-        .pipe($.if(!argv.dev, $.rename(meta.name + '.min.js')))
-        .pipe($.if(!argv.dev, gulp.dest(distDir + "/js")));
-});
+    .pipe($.header(banner, meta))
+    .pipe($.rename(meta.name + '.js'))
+    .pipe(gulp.dest(distDir + '/js'))
 
+    .pipe($.if(!argv.dev, $.uglify()))
+    .pipe($.if(!argv.dev, $.header(banner, meta)))
+    .pipe($.if(!argv.dev, $.rename(meta.name + '.min.js')))
+    .pipe($.if(!argv.dev, gulp.dest(distDir + '/js')))
+})
 
-gulp.task('default', ['sass', 'scripts', 'fonts'], function() {
-    gulp.watch(jsDir + '**/*.js', ['scripts']);
-    gulp.watch(sassDir + '**/*.scss', ['sass']);
-});
+gulp.task('watch:js', () => {
+  gulp.watch(jsDir + 'src/**/*.js', gulp.series('build:js'))
+})
 
-gulp.task('build', ['sass', 'scripts', 'fonts']);
+gulp.task('watch:sass', () => {
+  gulp.watch(sassDir + 'src/**/*.sass', gulp.series('build:sass'))
+})
+
+gulp.task('watch', gulp.parallel('watch:js', 'watch:sass'))
+gulp.task('build', gulp.series('build:sass', 'build:js', 'copy:fonts'))
+
+gulp.task('default', gulp.series('build', 'watch'))
