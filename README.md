@@ -1,7 +1,8 @@
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![CodeFactor](https://www.codefactor.io/repository/github/danielhpeters/dropify/badge)](https://www.codefactor.io/repository/github/danielhpeters/dropify)
 ![Dropify](src/images/cover.jpg)
 
-Dropify
-=========
+# Dropify
 
 Override your input files with style.
 
